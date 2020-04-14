@@ -39,9 +39,12 @@
 
         window.addEventListener("keydown", (evt) => {
           if (evt.key === "Enter") {
-            tick(gameState);
-            updateGrid(gameState, rootEl);
-            console.log(gameState.grid);
+            try {
+              tick(gameState);
+              updateGrid(gameState, rootEl);
+            } catch (e) {
+              alert("Your ant has left the universe.");
+            }
           }
         });
 
