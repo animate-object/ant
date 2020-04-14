@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      table {
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      table,
+      tr,
+      td {
+        border: 2px solid black;
+      }
+
+      td.ant {
+        background-color: gray !important; /*todo: not this */
+      }
+    </style>
+  </head>
+  <body>
+    Hello, test
+    <div id="root"></div>
+    <script>
+      const CYCLE_TIME_MS = 100;
+
+      const start = () => {
+        const dimensions = { width: 60, height: 40 };
+        const gameState = newGame(dimensions);
+
+        const rootEl = document.getElementById("root");
+
+        drawGrid(dimensions, 30, rootEl);
+        updateGrid(gameState, rootEl);
+
+        window.addEventListener("keydown", (evt) => {
+          if (evt.key === "Enter") {
+            tick(gameState);
+            updateGrid(gameState, rootEl);
+            console.log(gameState.grid);
+          }
+        });
+
+        // setInterval(() => {
+        //   tick(gameState);
+        //   updateGrid(gameState);
+        // }, CYCLE_TIME_MS);
+      };
+    </script>
+    <script src="ant.js" onload="start()"></script>
+  </body>
+</html>
