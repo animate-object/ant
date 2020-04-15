@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #root {
+        height: 98vh;
+        width: 98vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      table {
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+
+      table,
+      tr,
+      td {
+        border: 2px solid black;
+      }
+
+      td.ant {
+        background-color: gray !important; /*todo: not this */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      const CYCLE_TIME_MS = 100;
+
+      const sizeGrid = (
+        minSize,
+        { width, height } = document
+          .getElementById("root")
+          .getBoundingClientRect()
+      ) => {
+        const sideLength = Math.min(width, height) / minSize;
+        return {
+          sideLength,
+          dimensionsInSquares: {
+            width: Math.floor(width / sideLength),
+            height: Math.floor(height / sideLength),
+          },
+        };
+      };
+
+      const { sideLength, dimensionsInSquares } = sizeGrid(60);
+
+      const start = () => {
+        const dimensions = dimensionsInSquares;
+        const gameState = newGame(dimensions);
+
+        const rootEl = document.getElementById("root");
+
+        drawGrid(dimensions, sideLength, rootEl);
+        updateGrid(gameState, rootEl);
+
+        window.addEventListener("keydown", (evt) => {
+          if (evt.key === "Enter") {
+            try {
+              tick(gameState);
+              updateGrid(gameState, rootEl);
+            } catch (e) {
+              alert("Your ant has left the universe.");
+            }
+          }
+        });
+      };
+    </script>
+    <script src="ant.js" onload="start()"></script>
+  </body>
+</html>
