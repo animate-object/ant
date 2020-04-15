@@ -1,0 +1,22 @@
+{
+  "name": "ant",
+  "version": "0.0.0",
+  "description": "a static vanillajs implementation of langston's ant",
+  "main": "index.js",
+  "devDependencies": {
+    "gh-pages": "^2.2.0"
+  },
+  "scripts": {
+    "publishSite": "gh-pages -d public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/animate-object/ant.git"
+  },
+  "author": "alex prinsen",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/animate-object/ant/issues"
+  },
+  "homepage": "https://github.com/animate-object/ant#readme"
+}

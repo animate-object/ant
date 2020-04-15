@@ -2,8 +2,20 @@
 <html>
   <head>
     <style>
+      #root {
+        height: 98vh;
+        width: 98vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
       body {
         margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       table {
@@ -23,18 +35,35 @@
     </style>
   </head>
   <body>
-    Hello, test
     <div id="root"></div>
     <script>
       const CYCLE_TIME_MS = 100;
 
+      const sizeGrid = (
+        minSize,
+        { width, height } = document
+          .getElementById("root")
+          .getBoundingClientRect()
+      ) => {
+        const sideLength = Math.min(width, height) / minSize;
+        return {
+          sideLength,
+          dimensionsInSquares: {
+            width: Math.floor(width / sideLength),
+            height: Math.floor(height / sideLength),
+          },
+        };
+      };
+
+      const { sideLength, dimensionsInSquares } = sizeGrid(60);
+
       const start = () => {
-        const dimensions = { width: 60, height: 40 };
+        const dimensions = dimensionsInSquares;
         const gameState = newGame(dimensions);
 
         const rootEl = document.getElementById("root");
 
-        drawGrid(dimensions, 30, rootEl);
+        drawGrid(dimensions, sideLength, rootEl);
         updateGrid(gameState, rootEl);
 
         window.addEventListener("keydown", (evt) => {
@@ -47,11 +76,6 @@
             }
           }
         });
-
-        // setInterval(() => {
-        //   tick(gameState);
-        //   updateGrid(gameState);
-        // }, CYCLE_TIME_MS);
       };
     </script>
     <script src="ant.js" onload="start()"></script>
