@@ -3,6 +3,8 @@
  */
 const WHITE = "#ffffff";
 const RED = "#ff0000";
+const GREEN = "#00ff00";
+const BLUE = "#0000ff";
 
 const RIGHT = "right";
 const LEFT = "left";
@@ -39,6 +41,8 @@ const RULES = [
     newColor: WHITE,
     turn: RIGHT,
   },
+  // { current: GREEN, newColor: BLUE, turn: RIGHT },
+  // { current: BLUE, newColor: WHITE, turn: RIGHT },
 ];
 
 /**
@@ -88,7 +92,7 @@ const newGame = ({ width, height }) => {
 
   const ant = {
     position: antPosition,
-    heading: NORTH,
+    heading: EAST,
   };
 
   return {
@@ -96,6 +100,7 @@ const newGame = ({ width, height }) => {
     dim: { width, height },
     ant,
     rules: RULES,
+    gen: 0,
   };
 };
 
@@ -110,8 +115,7 @@ const applyRuleToCell = (rule, cell) => {
 
 const applyRuleToAnt = (rule, ant) => {
   let newHeading = TURNS[rule.turn][ant.heading];
-  console.log(ant.heading);
-  console.log(newHeading);
+
   return { ...ant, heading: newHeading };
 };
 
@@ -125,10 +129,6 @@ const tick = (gameState) => {
   const { updatedAnt, updatedCell } = gameState.rules.reduce(
     (acc, rule) => {
       if (rule.current === newCell.color) {
-        console.log({
-          rule: `This cell is ${newCell.color} so we'll turn it ${rule.newColor} and turn ${rule.turn}`,
-          currentColor: newCell.color,
-        });
         return {
           updatedAnt: applyRuleToAnt(rule, acc.updatedAnt),
           updatedCell: applyRuleToCell(rule, acc.updatedCell),
@@ -143,12 +143,9 @@ const tick = (gameState) => {
     }
   );
 
-  console.log(
-    `This ant is at ${updatedAnt.position.x}, ${updatedAnt.position.y}
-     and it's heading ${updatedAnt.heading}`
-  );
   gameState.ant = updatedAnt;
   gameState.grid[updatedAnt.position.y][updatedAnt.position.x] = updatedCell;
+  gameState.gen = gameState.gen + 1;
 };
 
 /** DOM */

@@ -26,18 +26,123 @@
       table,
       tr,
       td {
-        border: 1px solid black;
+        border: 1px solid white;
       }
 
       td.ant {
         background-color: gray !important; /*todo: not this */
       }
+
+      #info-panel {
+        position: fixed;
+        bottom: 2vh;
+        left: 2vw;
+
+        width: 30rem;
+        height: 11rem;
+
+        overflow: hidden;
+
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 4px;
+        padding: 1rem;
+        box-sizing: border-box;
+        opacity: 0.925;
+        font-family: "Courier New", Courier, monospace;
+        transition: width ease 500ms, height ease 500ms,
+          background-color ease-in 500ms;
+      }
+
+      #info-panel.closed {
+        width: 0.5rem;
+        height: 0.5rem;
+      }
+
+      #info-panel.closed:hover {
+        background-color: #cccccc;
+      }
+
+      #info-panel.closed:active {
+        background-color: #aaaaaa;
+      }
+
+      #info-panel.closed > * {
+        display: none;
+      }
+
+      .title {
+        font-weight: bold;
+        font-size: 1.2rem;
+      }
+
+      .controls {
+        padding-left: 1rem;
+      }
+
+      #close {
+        user-select: none;
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        border: 1px solid black;
+        border-radius: 2px;
+        padding: 0.125rem 0.25rem;
+        transition: background-color ease-in 500ms;
+        background-color: white;
+      }
+
+      #close:hover {
+        background-color: #cccccc;
+      }
+
+      #close:active {
+        background-color: #aaaaaa;
+      }
+
+      #generations {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: none;
+      }
+
+      #state {
+        font-weight: bold;
+      }
+
+      #state.on {
+        color: green;
+      }
+      #state:not(.on) {
+        color: orange;
+      }
     </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="info-panel" onclick="setPanelState(event, true)">
+      <div class="title">Langton's Ant</div>
+      <br />
+      <div>
+        <div id="close" onclick="setPanelState(event, false)">&lt;</div>
+        <div id="generations">
+          Generations: 0
+        </div>
+        <div>State: <span id="state">PAUSED</span></div>
+        <div>
+          Controls:
+          <div class="controls">
+            <div>play-pause: [spacebar]</div>
+            <div>advance one: [enter]</div>
+            <div>reset: [delete]</div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script>
-      const CYCLE_TIME_MS = 100;
+      const CYCLE_TIME_MS = 1;
+      let cancel = undefined;
 
       const sizeGrid = (
         minSize,
@@ -55,7 +160,38 @@
         };
       };
 
-      const { sideLength, dimensionsInSquares } = sizeGrid(60);
+      const { sideLength, dimensionsInSquares } = sizeGrid(80);
+
+      const updateGenerations = (gameState) => {
+        document.getElementById("generations").textContent =
+          "Generations: " + gameState.gen;
+      };
+
+      const updateRunState = (on) => {
+        const stateEl = document.getElementById("state");
+        if (on) {
+          stateEl.classList.add("on");
+        } else {
+          stateEl.classList.remove("on");
+        }
+
+        stateEl.textContent = on ? "PLAYING" : "PAUSED";
+      };
+
+      const tickAndUpdateUI = (gameState, rootEl) => {
+        tick(gameState);
+        updateGrid(gameState, rootEl);
+        updateGenerations(gameState);
+      };
+
+      const setPanelState = (evt, open) => {
+        evt.stopPropagation();
+        if (open) {
+          document.getElementById("info-panel").classList.remove("closed");
+        } else {
+          document.getElementById("info-panel").classList.add("closed");
+        }
+      };
 
       const start = () => {
         const dimensions = dimensionsInSquares;
@@ -69,10 +205,28 @@
         window.addEventListener("keydown", (evt) => {
           if (evt.key === "Enter") {
             try {
-              tick(gameState);
-              updateGrid(gameState, rootEl);
+              tickAndUpdateUI(gameState, rootEl);
             } catch (e) {
+              // might be worth thinking about a more explicit way to handle exiting from the game
               alert("Your ant has left the universe.");
+            }
+          } else if ((evt.key = "Space")) {
+            if (cancel != null) {
+              updateRunState(false);
+              cancel();
+              cancel = undefined;
+            } else {
+              updateRunState(true);
+              const intervalId = setInterval(() => {
+                try {
+                  tickAndUpdateUI(gameState, rootEl);
+                } catch (e) {
+                  alert("Your ant has left the universe.");
+                  throw e;
+                }
+              }, CYCLE_TIME_MS);
+
+              cancel = () => clearInterval(intervalId);
             }
           }
         });
